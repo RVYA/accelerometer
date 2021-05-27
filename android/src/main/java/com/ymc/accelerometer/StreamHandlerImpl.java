@@ -1,5 +1,5 @@
-/** Based on https://github.com/flutter/plugins/blob/master/packages/sensors/android/src/main/java/io/flutter/plugins/sensors/StreamHandlerImpl.java
-  * License and credits can be found on the given repository.
+/* Based on https://github.com/flutter/plugins/blob/master/packages/sensors/android/src/main/java/io/flutter/plugins/sensors/StreamHandlerImpl.java
+   License and credits can be found on the given repository.
   */
 
 package com.ymc.accelerometer;
@@ -24,7 +24,10 @@ class StreamHandlerImpl implements EventChannel.StreamHandler {
   @Override
   public void onListen(Object arguments, EventChannel.EventSink events) {
     sensorEventListener = createSensorEventListener(events);
-    sensorManager.registerListener(sensorEventListener, sensor, sensorManager.SENSOR_DELAY_NORMAL);
+    // Because the Linear Accelerometer uses Gyroscope to receive data,
+    // accelerometer will be used for both instances. Filtering will be made
+    // in listener.
+    sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
   }
 
   @Override
@@ -39,7 +42,7 @@ class StreamHandlerImpl implements EventChannel.StreamHandler {
 
       @Override
       public void onSensorChanged(SensorEvent event) {
-        double[] sensorValues = new double[event.values.length];
+        final double[] sensorValues = new double[event.values.length];
         for (int i = 0; i < event.values.length; i++) {
           sensorValues[i] = event.values[i];
         }

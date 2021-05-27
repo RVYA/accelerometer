@@ -1,5 +1,5 @@
-/** Based on https://github.com/flutter/plugins/blob/master/packages/sensors/android/src/main/java/io/flutter/plugins/sensors/SensorsPlugin.java
-  * License and credits can be found in given repository.
+/* Based on https://github.com/flutter/plugins/blob/master/packages/sensors/android/src/main/java/io/flutter/plugins/sensors/SensorsPlugin.java
+   License and credits can be found in given repository.
   */
 
 package com.ymc.accelerometer;
@@ -12,21 +12,19 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 
 /** SensorsPlugin */
-public class SensorsPlugin implements FlutterPlugin {
-  private static final String ACCELEROMETER_CHANNEL_NAME =
-      "plugins.flutter.io/sensors/accelerometer";
-  private static final String GYROSCOPE_CHANNEL_NAME = "plugins.flutter.io/sensors/gyroscope";
-  private static final String USER_ACCELEROMETER_CHANNEL_NAME =
-      "plugins.flutter.io/sensors/user_accel";
+public class AccelerometerPlugin implements FlutterPlugin {
+  private static final String
+          ACCELEROMETER_CHANNEL_NAME = "plugins.ymc.com/accelerometer",
+          LINEAR_ACCELEROMETER_CHANNEL_NAME = "plugins.ymc.com/linear_accelerometer";
 
-  private EventChannel accelerometerChannel;
-  private EventChannel userAccelChannel;
-  private EventChannel gyroscopeChannel;
+  private EventChannel
+          accelerometerChannel,
+          linearAccelerometerChannel;
 
   /** Plugin registration. */
   @SuppressWarnings("deprecation")
   public static void registerWith(io.flutter.plugin.common.PluginRegistry.Registrar registrar) {
-    SensorsPlugin plugin = new SensorsPlugin();
+    AccelerometerPlugin plugin = new AccelerometerPlugin();
     plugin.setupEventChannels(registrar.context(), registrar.messenger());
   }
 
@@ -45,28 +43,20 @@ public class SensorsPlugin implements FlutterPlugin {
     accelerometerChannel = new EventChannel(messenger, ACCELEROMETER_CHANNEL_NAME);
     final StreamHandlerImpl accelerationStreamHandler =
         new StreamHandlerImpl(
-            (SensorManager) context.getSystemService(context.SENSOR_SERVICE),
+            (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
             Sensor.TYPE_ACCELEROMETER);
     accelerometerChannel.setStreamHandler(accelerationStreamHandler);
 
-    userAccelChannel = new EventChannel(messenger, USER_ACCELEROMETER_CHANNEL_NAME);
+    linearAccelerometerChannel = new EventChannel(messenger, LINEAR_ACCELEROMETER_CHANNEL_NAME);
     final StreamHandlerImpl linearAccelerationStreamHandler =
         new StreamHandlerImpl(
-            (SensorManager) context.getSystemService(context.SENSOR_SERVICE),
+            (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
             Sensor.TYPE_LINEAR_ACCELERATION);
-    userAccelChannel.setStreamHandler(linearAccelerationStreamHandler);
-
-    gyroscopeChannel = new EventChannel(messenger, GYROSCOPE_CHANNEL_NAME);
-    final StreamHandlerImpl gyroScopeStreamHandler =
-        new StreamHandlerImpl(
-            (SensorManager) context.getSystemService(context.SENSOR_SERVICE),
-            Sensor.TYPE_GYROSCOPE);
-    gyroscopeChannel.setStreamHandler(gyroScopeStreamHandler);
+    linearAccelerometerChannel.setStreamHandler(linearAccelerationStreamHandler);
   }
 
   private void teardownEventChannels() {
     accelerometerChannel.setStreamHandler(null);
-    userAccelChannel.setStreamHandler(null);
-    gyroscopeChannel.setStreamHandler(null);
+    linearAccelerometerChannel.setStreamHandler(null);
   }
 }

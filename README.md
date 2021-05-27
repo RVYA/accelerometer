@@ -1,3 +1,5 @@
+## TODO: Write README
+
 # accelerometer
 
 A Flutter plugin to receive accelerometer data in real-time from device. Based on sensors plugin from Flutter team
