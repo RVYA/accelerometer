@@ -88,7 +88,7 @@ class AccelerometerEvent {
           + (this.z * this.z),
         );
     
-    return radianToDegrees(math.acos(this.z / accelerationNormal)).round();
+    return _radianToDegrees(math.acos(this.z / accelerationNormal)).round();
   }
 
   @override
@@ -100,7 +100,7 @@ AccelerometerEvent _listToAccelerometerEvent(List<double> list) {
   return AccelerometerEvent(list[0], list[1], list[2]);
 }
 
-double radianToDegrees(double radian) => ((radian * 180.0) / math.pi);
+double _radianToDegrees(double radian) => ((radian * 180.0) / math.pi);
 
 
 Stream<AccelerometerEvent>? _accelerometerEvents;
