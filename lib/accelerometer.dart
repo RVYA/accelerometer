@@ -9,7 +9,7 @@ import 'package:flutter/services.dart' show EventChannel;
 
 
 const EventChannel _accelerometerEventChannel =
-    EventChannel('plugins.ymc.com/sensors/accelerometer');
+    EventChannel('plugins.ymc.com/accelerometer');
 
 const double _kHighPassFilterRampFactor = 0.1;
 const double
