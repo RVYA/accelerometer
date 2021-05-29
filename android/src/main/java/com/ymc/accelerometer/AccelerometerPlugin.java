@@ -14,12 +14,12 @@ import io.flutter.plugin.common.EventChannel;
 /** SensorsPlugin */
 public class AccelerometerPlugin implements FlutterPlugin {
   private static final String
-          ACCELEROMETER_CHANNEL_NAME = "plugins.ymc.com/accelerometer",
-          LINEAR_ACCELEROMETER_CHANNEL_NAME = "plugins.ymc.com/linear_accelerometer";
+          ACCELEROMETER_CHANNEL_NAME = "plugins.ymc.com/accelerometer";
+          //LINEAR_ACCELEROMETER_CHANNEL_NAME = "plugins.ymc.com/linear_accelerometer";
 
   private EventChannel
-          accelerometerChannel,
-          linearAccelerometerChannel;
+          accelerometerChannel;
+          //linearAccelerometerChannel;
 
   /** Plugin registration. */
   @SuppressWarnings("deprecation")
@@ -47,16 +47,16 @@ public class AccelerometerPlugin implements FlutterPlugin {
             Sensor.TYPE_ACCELEROMETER);
     accelerometerChannel.setStreamHandler(accelerationStreamHandler);
 
-    linearAccelerometerChannel = new EventChannel(messenger, LINEAR_ACCELEROMETER_CHANNEL_NAME);
+    /*linearAccelerometerChannel = new EventChannel(messenger, LINEAR_ACCELEROMETER_CHANNEL_NAME);
     final StreamHandlerImpl linearAccelerationStreamHandler =
         new StreamHandlerImpl(
             (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
             Sensor.TYPE_LINEAR_ACCELERATION);
-    linearAccelerometerChannel.setStreamHandler(linearAccelerationStreamHandler);
+    linearAccelerometerChannel.setStreamHandler(linearAccelerationStreamHandler);*/
   }
 
   private void teardownEventChannels() {
     accelerometerChannel.setStreamHandler(null);
-    linearAccelerometerChannel.setStreamHandler(null);
+    //linearAccelerometerChannel.setStreamHandler(null);
   }
 }

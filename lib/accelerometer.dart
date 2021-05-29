@@ -1,16 +1,20 @@
-///
 /// Based on https://github.com/flutter/plugins/blob/master/packages/sensors/lib/sensors.dart
 /// License and credits can be found in given repository.
-///
 
 
 import 'dart:async';
+import 'dart:math' as math show pi, acos, sqrt;
 
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show EventChannel;
 
 
 const EventChannel _accelerometerEventChannel =
     EventChannel('plugins.ymc.com/sensors/accelerometer');
+
+const double _kHighPassFilterRampFactor = 0.1;
+const double
+    _kDeviceAngleThresholdZTowardsGround =  25,
+    _kDeviceAngleThresholdZTowardsSky    = 155;
 
 
 /// Discrete reading from an accelerometer. Accelerometers measure the velocity
@@ -19,7 +23,7 @@ const EventChannel _accelerometerEventChannel =
 /// a particular direction.
 class AccelerometerEvent {
   /// Contructs an instance with the given [x], [y], and [z] values.
-  AccelerometerEvent(this.x, this.y, this.z);
+  const AccelerometerEvent(this.x, this.y, this.z);
 
   /// Acceleration force along the x axis (including gravity) measured in m/s^2.
   ///
@@ -41,6 +45,52 @@ class AccelerometerEvent {
   /// towards the user and negative mean it is moving away from them.
   final double z;
 
+
+  AccelerometerEvent applyHighPassFilter({
+    required final List<double> priorDelta,
+    final double alpha = _kHighPassFilterRampFactor,
+  }) {
+    priorDelta[0] = (this.x * alpha) + (priorDelta[0] * (1.0 - alpha));
+    priorDelta[1] = (this.y * alpha) + (priorDelta[1] * (1.0 - alpha));
+    priorDelta[2] = (this.z * alpha) + (priorDelta[2] * (1.0 - alpha));
+    
+    return
+        AccelerometerEvent(
+          this.x - priorDelta[0],
+          this.y - priorDelta[1],
+          this.z - priorDelta[2],
+        );
+  }
+
+  /// When device is held "perpendicular" to the ground in portrait view,
+  /// "y" value of acceleration vector is equal to the gravity. And when the
+  /// device is held "parallel" to the ground, "y" value of acceleration vector
+  /// should be about (gravity/2).
+  ///
+  /// By deciding that device should be perceived as "flat" (z axis pointing
+  /// towards sky or ground) when angle between ground and device is "equal or
+  /// less than 25" or "equal or greater than 155 degrees", it can be known
+  /// if device is held flat or not.
+  bool isDeviceHeldFlat({
+    double angleThresholdScreenToGround = _kDeviceAngleThresholdZTowardsGround,
+    double angleThresholdScreenToSky    = _kDeviceAngleThresholdZTowardsSky,
+  }) {
+    final int inclination = calculateDeviceInclination();
+    return (inclination <= angleThresholdScreenToGround)
+        || (inclination >= angleThresholdScreenToSky);
+  }
+
+  int calculateDeviceInclination() {
+    final double accelerationNormal =
+        math.sqrt(
+          (this.x * this.x)
+          + (this.y * this.y)
+          + (this.z * this.z),
+        );
+    
+    return radianToDegrees(math.acos(this.z / accelerationNormal)).round();
+  }
+
   @override
   String toString() => '[AccelerometerEvent (x: $x, y: $y, z: $z)]';
 }
@@ -49,6 +99,8 @@ class AccelerometerEvent {
 AccelerometerEvent _listToAccelerometerEvent(List<double> list) {
   return AccelerometerEvent(list[0], list[1], list[2]);
 }
+
+double radianToDegrees(double radian) => ((radian * 180.0) / math.pi);
 
 
 Stream<AccelerometerEvent>? _accelerometerEvents;
