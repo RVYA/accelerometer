@@ -75,12 +75,15 @@ class AccelerometerEvent {
     double angleThresholdScreenToGround = _kDeviceAngleThresholdZTowardsGround,
     double angleThresholdScreenToSky    = _kDeviceAngleThresholdZTowardsSky,
   }) {
-    final int inclination = calculateDeviceInclination();
+    final int inclination = calculateDeviceZInclination();
     return (inclination <= angleThresholdScreenToGround)
         || (inclination >= angleThresholdScreenToSky);
   }
 
-  int calculateDeviceInclination() {
+  /// The z axis points towards screen; this means to calculate the angle
+  /// between screen and ground plane, inclination of z axis against ground
+  /// must be calculated.
+  int calculateDeviceZInclination() {
     final double accelerationNormal =
         math.sqrt(
           (this.x * this.x)
@@ -89,6 +92,25 @@ class AccelerometerEvent {
         );
     
     return _radianToDegrees(math.acos(this.z / accelerationNormal)).round();
+  }
+
+  /// The x axis points towards right side of the device; this means to
+  /// calculate angle between device and the YZ axis, inclination of x axis
+  /// against plane which is perpendicular to the ground must be calculated.
+  /// 
+  /// NOTE: While the x inclination returns about 90 degrees when device is
+  /// on portrait mode while screen is perpendicular against ground, this
+  /// method is intended to calculate "yaw" while device is flat (parallel
+  /// to the ground.)
+  int calculateDeviceXInclination() {
+    final double accelerationNormal =
+        math.sqrt(
+          (this.x * this.x)
+          + (this.y * this.y)
+          + (this.z * this.z),
+        );
+    
+    return _radianToDegrees(math.acos(this.x / accelerationNormal)).round();
   }
 
   @override
